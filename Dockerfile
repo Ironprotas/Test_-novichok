@@ -19,12 +19,11 @@ ENV ASPNETCORE_URLS=http://+:8080 \
     ASPNETCORE_ENVIRONMENT=Production \
     DATA_DIR=/app/data
 
-RUN mkdir -p /app/data \
-    && adduser --disabled-password --gecos "" appuser \
-    && chown -R appuser:appuser /app
+# В образе уже есть non-root пользователь app ($APP_UID)
+RUN mkdir -p /app/data && chown -R $APP_UID:$APP_UID /app/data
 
-COPY --from=build /app/publish .
-USER appuser
+COPY --from=build --chown=$APP_UID:$APP_UID /app/publish .
+USER $APP_UID
 
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "TestNewPeople.dll"]
