@@ -1,0 +1,64 @@
+@page "{id:int}"
+@model TestNewPeople.Pages.Hr.CaseModel
+@using TestNewPeople.Models
+@using TestNewPeople.Services
+@{
+    ViewData["Title"] = "Обращение";
+    var c = Model.Case!;
+    var p = Model.Person!;
+}
+
+<section class="page-head compact">
+    <div>
+        <p class="eyebrow">Обращение · @AttentionService.CaseStatusLabel(c.Status)</p>
+        <h1>@p.FullName</h1>
+        <p class="lead tight">@p.Location · смена @p.Shift · наставник @p.Mentor.Name</p>
+    </div>
+</section>
+
+<div class="two-col">
+    <section class="panel">
+        <h2>Что сообщил новичок</h2>
+        <p><strong>Причина:</strong> @c.Reason</p>
+        <p>@c.NewcomerReply</p>
+    </section>
+
+    <form method="post" asp-page="/Hr/Case" asp-route-id="@c.Id" class="panel pulse-form">
+        <input type="hidden" name="Id" value="@c.Id"/>
+        <h2>Что делает руководитель</h2>
+
+        <label class="block">
+            <span>Статус</span>
+            <select name="Status">
+                @foreach (CaseStatus s in Enum.GetValues<CaseStatus>())
+                {
+                    if (Model.Status == s)
+                    {
+                        <option value="@s" selected>@AttentionService.CaseStatusLabel(s)</option>
+                    }
+                    else
+                    {
+                        <option value="@s">@AttentionService.CaseStatusLabel(s)</option>
+                    }
+                }
+            </select>
+        </label>
+
+        <label class="block">
+            <span>Следующее действие</span>
+            <textarea name="NextAction" rows="3" placeholder="Например: совместная приёмка 15 позиций с наставником">@Model.NextAction</textarea>
+        </label>
+
+        <label class="block">
+            <span>Дата проверки</span>
+            <input type="date" name="CheckDate" value="@(Model.CheckDate?.ToString("yyyy-MM-dd"))"/>
+        </label>
+
+        <p class="tiny">Путь демо: «Нужна помощь» → «В работе» (совместная приёмка) → «Решено» после проверки.</p>
+
+        <div class="cta-row">
+            <button class="btn btn-primary" type="submit">Сохранить</button>
+            <a class="btn btn-ghost" asp-page="/Hr/Index">К списку</a>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"] — Новичок</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+</head>
+<body>
+<div class="app-shell">
+    <header class="topbar">
+        <a class="brand" asp-page="/Index">
+            <span class="brand-mark">Н</span>
+            <span class="brand-text">Новичок</span>
+        </a>
+        <nav class="topnav">
+            @{
+                var page = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+                var isNewcomer = page.StartsWith("/Newcomer", StringComparison.Ordinal);
+                var isMentor = page.StartsWith("/Mentor", StringComparison.Ordinal);
+            }
+            @if (isNewcomer)
+            {
+                <a asp-page="/Demo">Сменить профиль</a>
+            }
+            else if (isMentor)
+            {
+                <a asp-page="/Mentor/Index" class="@(page == "/Mentor/Index" ? "active" : null)">Мои новички</a>
+                <a asp-page="/Demo">Сменить роль</a>
+            }
+            else
+            {
+                <a asp-page="/Index" class="@(page == "/Index" ? "active" : null)">Старт</a>
+                <a asp-page="/Hr/Index" class="@(page.StartsWith("/Hr") ? "active" : null)">Руководитель</a>
+                <a asp-page="/Mentor/Index" class="@(page.StartsWith("/Mentor") ? "active" : null)">Наставник</a>
+                <a asp-page="/Demo" class="@(page == "/Demo" ? "active" : null)">Демо</a>
+            }
+        </nav>
+    </header>
+    <main class="main">
+        @RenderBody()
+    </main>
+    <footer class="foot">
+        MVP: склад · задачи · опрос дня 7 · метки наставника
+    </footer>
+</div>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

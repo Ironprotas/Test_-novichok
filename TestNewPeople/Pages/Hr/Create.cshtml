@@ -1,0 +1,99 @@
+@page
+@model TestNewPeople.Pages.Hr.CreateModel
+@{
+    ViewData["Title"] = "Новый новичок";
+}
+
+<section class="page-head compact">
+    <div>
+        <p class="eyebrow">Склад · приём</p>
+        <h1>Добавить новичка</h1>
+        <p class="lead tight">Сразу создаётся план первой недели (3 задачи) и опрос на 7-й день.</p>
+    </div>
+</section>
+
+@if (!string.IsNullOrWhiteSpace(Model.Error))
+{
+    <div class="alert alert-pulse" style="margin-bottom:1rem">
+        <div><strong>@Model.Error</strong></div>
+    </div>
+}
+
+<form method="post" class="panel pulse-form" style="display:grid;gap:1rem">
+    <div class="two-col" style="gap:1rem">
+        <section>
+            <h2>Новичок</h2>
+            <label class="block">
+                <span>ФИО</span>
+                <input type="text" name="FullName" value="@Model.FullName" required placeholder="Иван Петров"/>
+            </label>
+            <label class="block">
+                <span>Точка</span>
+                <input type="text" name="Location" value="@Model.Location" placeholder="Склад Север"/>
+            </label>
+            <label class="block">
+                <span>Руководитель</span>
+                <input type="text" name="ManagerName" value="@Model.ManagerName" required placeholder="Игорь К."/>
+            </label>
+            <label class="block">
+                <span>Смена</span>
+                <select name="Shift">
+                    @if (Model.Shift == "Ночь")
+                    {
+                        <option value="День">День</option>
+                        <option value="Ночь" selected>Ночь</option>
+                    }
+                    else
+                    {
+                        <option value="День" selected>День</option>
+                        <option value="Ночь">Ночь</option>
+                    }
+                </select>
+            </label>
+            <label class="block">
+                <span>Дата выхода</span>
+                <input type="date" name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" required/>
+            </label>
+        </section>
+
+        <section>
+            <h2>Наставник</h2>
+            <label class="block">
+                <span>ФИО наставника</span>
+                <input type="text" name="MentorName" value="@Model.MentorName" required placeholder="Сергей Наставник"/>
+            </label>
+            <label class="block">
+                <span>Должность</span>
+                <input type="text" name="MentorRole" value="@Model.MentorRole" placeholder="Бригадир склада"/>
+            </label>
+            <label class="block">
+                <span>Телефон</span>
+                <input type="text" name="MentorPhone" value="@Model.MentorPhone" placeholder="+7 900 000-00-00"/>
+            </label>
+            <label class="block">
+                <span>Мессенджер</span>
+                <input type="text" name="MentorMessenger" value="@Model.MentorMessenger" placeholder="Telegram / WhatsApp"/>
+            </label>
+            <label class="block">
+                <span>Смена наставника</span>
+                <select name="MentorShift">
+                    @if (Model.MentorShift == "Ночь")
+                    {
+                        <option value="День">День</option>
+                        <option value="Ночь" selected>Ночь</option>
+                    }
+                    else
+                    {
+                        <option value="День" selected>День</option>
+                        <option value="Ночь">Ночь</option>
+                    }
+                </select>
+            </label>
+        </section>
+    </div>
+
+    <div class="cta-row">
+        <button class="btn btn-primary" type="submit">Создать</button>
+        <a class="btn btn-ghost" asp-page="/Hr/Index">Отмена</a>
+    </div>
+</form>

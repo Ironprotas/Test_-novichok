@@ -1,0 +1,107 @@
+@page "{id}"
+@model TestNewPeople.Pages.Novice.IndexModel
+@using TestNewPeople.Models
+@using TestNewPeople.Services
+@{
+    ViewData["Title"] = Model.Person?.FullName ?? "Новичок";
+    var person = Model.Person!;
+}
+
+<section class="page-head compact">
+    <div>
+        <p class="eyebrow">Склад · день @Model.Day · первая неделя</p>
+        <h1>@person.FullName</h1>
+        <p class="lead tight">@person.Location · смена @person.Shift · руководитель @person.ManagerName</p>
+    </div>
+    <div class="head-side">
+        <div class="ring" style="--pct: @(Model.ProgressPct)%">
+            <strong>@Model.ProgressPct%</strong>
+            <span>план</span>
+        </div>
+    </div>
+</section>
+
+@if (Model.SurveyDue)
+{
+    <div class="alert alert-pulse">
+        <div>
+            <strong>Опрос 7-го дня</strong>
+            <p>3 вопроса: понятность смены, к кому обратиться, что мешает работать самому.</p>
+        </div>
+        <a class="btn btn-primary" asp-page="/Newcomer/Survey" asp-route-id="@person.Id">Пройти опрос</a>
+    </div>
+}
+
+<div class="two-col">
+    <section class="stack">
+        <div class="panel">
+            <h2>Мои задачи</h2>
+            <p class="tiny" style="margin-top:-0.4rem;margin-bottom:0.7rem">Задачи ставит руководитель. Здесь можно только отметить выполнение.</p>
+            @foreach (var task in person.Tasks.OrderBy(t => t.DayFrom).ThenBy(t => t.Id))
+            {
+                <partial name="_TaskItem" model="(person.Id, task, task.Status == PlanTaskStatus.Todo && Model.Day > task.DayTo)"/>
+            }
+        </div>
+
+        @if (Model.OpenCase is not null)
+        {
+            <div class="panel danger-panel">
+                <h2>Ваше обращение · @AttentionService.CaseStatusLabel(Model.OpenCase.Status)</h2>
+                <p><strong>Причина:</strong> @Model.OpenCase.Reason</p>
+                <p>@Model.OpenCase.NewcomerReply</p>
+                @if (!string.IsNullOrWhiteSpace(Model.OpenCase.NextAction))
+                {
+                    <p class="tiny">Что решили сделать: @Model.OpenCase.NextAction
+                        @if (Model.OpenCase.CheckDate is not null)
+                        {
+                            <text> · проверка @Model.OpenCase.CheckDate?.ToString("dd.MM")</text>
+                        }
+                    </p>
+                }
+            </div>
+        }
+    </section>
+
+    <aside class="stack">
+        <div class="panel buddy-card">
+            <h2>Наставник</h2>
+            <p class="buddy-name">@person.Mentor.Name</p>
+            <p class="meta">@person.Mentor.RoleTitle · смена @person.Mentor.Shift</p>
+            <ul class="contact-list">
+                <li>@person.Mentor.Phone</li>
+                <li>@person.Mentor.Messenger</li>
+            </ul>
+            @if (!string.Equals(person.Shift, person.Mentor.Shift, StringComparison.OrdinalIgnoreCase))
+            {
+                <p class="tiny">Сейчас наставник в другой смене — если вопрос срочный, напишите руководителю.</p>
+            }
+            else
+            {
+                <p class="tiny">Можно писать по рабочим вопросам — так быстрее войти в смену.</p>
+            }
+        </div>
+
+        <div class="panel">
+            <h2>Опрос дня 7</h2>
+            @if (Model.SurveyDone)
+            {
+                <p class="tiny">Пройден @person.Survey!.CompletedOn?.ToString("dd.MM")</p>
+                <ul class="reason-list">
+                    <li>Понятность смены: @person.Survey.ClarityScore/5</li>
+                    <li>Знаю, к кому обратиться: @person.Survey.ContactScore/5</li>
+                    <li>@(person.Survey.BlockerText ?? "Блокеров не указано")</li>
+                </ul>
+                <a class="btn btn-ghost" asp-page="/Newcomer/Survey" asp-route-id="@person.Id">Открыть снова</a>
+            }
+            else if (Model.Day >= 7)
+            {
+                <p class="tiny">Пока без ответа.</p>
+                <a class="btn btn-primary" asp-page="/Newcomer/Survey" asp-route-id="@person.Id">Пройти опрос</a>
+            }
+            else
+            {
+                <p class="tiny">Откроется на 7-й день.</p>
+            }
+        </div>
+    </aside>
+</div>

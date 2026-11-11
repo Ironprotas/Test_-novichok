@@ -1,0 +1,116 @@
+@page "{id}"
+@model TestNewPeople.Pages.Hr.PersonModel
+@using TestNewPeople.Models
+@{
+    ViewData["Title"] = "Задачи новичка";
+    var person = Model.Person!;
+}
+
+<section class="page-head compact">
+    <div>
+        <p class="eyebrow">Руководитель · постановка задач</p>
+        <h1>@person.FullName</h1>
+        <p class="lead tight">@person.Location · смена @person.Shift · день @Model.Day · наставник @person.Mentor.Name</p>
+    </div>
+    <div class="head-side">
+        <a class="btn btn-ghost" asp-page="/Newcomer/Index" asp-route-id="@person.Id">Кабинет новичка</a>
+        <a class="btn btn-ghost" asp-page="/Hr/Index">К списку</a>
+    </div>
+</section>
+
+@if (Model.Attention.Count > 0)
+{
+    <div class="panel" style="margin-bottom:1rem">
+        <h2>Требует внимания</h2>
+        <ul class="reason-list">
+            @foreach (var item in Model.Attention)
+            {
+                <li><strong>@item.Title.</strong> @item.Detail</li>
+            }
+        </ul>
+    </div>
+}
+
+@{
+    var marks = person.MentorMarks.Where(m => m.IsActive).OrderByDescending(m => m.CreatedAtUtc).ToList();
+}
+<div class="panel" style="margin-bottom:1rem">
+    <h2>Заметки наставника · @person.Mentor.Name</h2>
+    @if (marks.Count == 0)
+    {
+        <p class="tiny">Наставник пока ничего не отметил.</p>
+    }
+    else
+    {
+        <ul class="reason-list">
+            @foreach (var mark in marks)
+            {
+                <li>
+                    <strong>@(mark.NeedsAttention ? "Сигнал" : "Ок"): @mark.Label.</strong>
+                    @if (!string.IsNullOrWhiteSpace(mark.Comment))
+                    {
+                        <text> @mark.Comment</text>
+                    }
+                    <br/><span class="tiny">@mark.CreatedAtUtc.ToLocalTime().ToString("dd.MM HH:mm")</span>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+<div class="two-col">
+    <section class="panel">
+        <h2>Текущие задачи</h2>
+        @foreach (var task in person.Tasks.OrderBy(t => t.DayFrom).ThenBy(t => t.Id))
+        {
+            var done = task.Status == PlanTaskStatus.Done;
+            var canRemove = task.Id is not ("t1" or "t2" or "t3");
+            <div class="task-item @(done ? "done" : null)">
+                <div class="check" style="pointer-events:none">@(done ? "✓" : "")</div>
+                <div class="task-body">
+                    <strong>@task.Title</strong>
+                    <p>@task.Description</p>
+                    <span class="tiny">дни @task.DayFrom–@task.DayTo@(done ? " · выполнено" : "")</span>
+                    @if (canRemove)
+                    {
+                        <form method="post" asp-page="/Hr/Person" asp-route-id="@person.Id" asp-page-handler="Remove" class="task-remove">
+                            <input type="hidden" name="id" value="@person.Id"/>
+                            <input type="hidden" name="taskId" value="@task.Id"/>
+                            <button type="submit" class="linkish">снять</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        }
+    </section>
+
+    <form method="post" asp-page="/Hr/Person" asp-route-id="@person.Id" asp-page-handler="Add" class="panel pulse-form">
+        <h2>Поставить задачу</h2>
+        <p class="tiny">Только руководитель. Новичок увидит задачу в своём кабинете и сможет отметить выполнение.</p>
+        @if (!string.IsNullOrWhiteSpace(Model.TaskError))
+        {
+            <p class="tiny" style="color:var(--danger)">@Model.TaskError</p>
+        }
+        <label class="block">
+            <span>Название</span>
+            <input type="text" name="NewTitle" value="@Model.NewTitle" required placeholder="Например: разобрать возврат с наставником"/>
+        </label>
+        <label class="block">
+            <span>Что сделать</span>
+            <textarea name="NewDescription" rows="2" placeholder="Кратко: зачем и как проверить">@Model.NewDescription</textarea>
+        </label>
+        <div class="filters" style="margin:0;grid-template-columns:1fr 1fr">
+            <label class="block" style="margin:0">
+                <span>С дня</span>
+                <input type="number" min="1" max="90" name="NewDayFrom" value="@Model.NewDayFrom"/>
+            </label>
+            <label class="block" style="margin:0">
+                <span>По день</span>
+                <input type="number" min="1" max="90" name="NewDayTo" value="@Model.NewDayTo"/>
+            </label>
+        </div>
+        <div class="cta-row">
+            <button class="btn btn-primary" type="submit">Поставить задачу</button>
+        </div>
+    </form>
+</div>

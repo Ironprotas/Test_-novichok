@@ -1,0 +1,33 @@
+@page
+@model DemoModel
+@{
+    ViewData["Title"] = "Демо-вход";
+    var today = DateOnly.FromDateTime(DateTime.Today);
+}
+
+<section class="page-head">
+    <div>
+        <p class="eyebrow">Демо-вход</p>
+        <h1>Выберите роль</h1>
+        <p class="lead tight">Новичок отмечает задачи. Наставник ставит метки. Руководитель видит сигналы и ведёт обращения.</p>
+    </div>
+    <div class="pill-row">
+        <a class="btn btn-primary" asp-page="/Mentor/Index">Войти как наставник</a>
+        <a class="btn btn-ghost" asp-page="/Hr/Index">Войти как руководитель</a>
+    </div>
+</section>
+
+<h2 style="font-family:var(--display);margin:1.5rem 0 0.8rem">Как новичок</h2>
+<div class="demo-grid">
+@foreach (var pick in Model.Picks)
+{
+    <a class="demo-card" asp-page="/Newcomer/Index" asp-route-id="@pick.Person.Id">
+        <div class="demo-top">
+            <strong>@pick.Person.FullName</strong>
+            <span class="mini-risk">@pick.Badge</span>
+        </div>
+        <p>@pick.Person.Location · смена @pick.Person.Shift · день @pick.Person.DayNumber(today)</p>
+        <p class="why">@pick.Why</p>
+    </a>
+}
+</div>

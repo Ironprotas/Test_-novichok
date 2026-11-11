@@ -1,0 +1,117 @@
+@page
+@model TestNewPeople.Pages.Hr.IndexModel
+@using TestNewPeople.Models
+@using TestNewPeople.Services
+@{
+    ViewData["Title"] = "Руководитель";
+}
+
+<section class="page-head">
+    <div>
+        <p class="eyebrow">Склад · руководитель</p>
+        <h1>Требует внимания</h1>
+        <p class="lead tight">Конкретная причина и следующее действие — без «красной зоны».</p>
+    </div>
+    <div class="pill-row">
+        <a class="pill @(Model.OnlyAttention == "1" ? "pill-active" : null)" asp-page="/Hr/Index" asp-route-only="1">Только с сигналами</a>
+        <a class="pill" asp-page="/Hr/Index">Все</a>
+        <a class="btn btn-primary" asp-page="/Hr/Create">Добавить новичка</a>
+    </div>
+</section>
+
+@if (Model.RecentChanges.Count > 0)
+{
+    <section class="panel history-panel" style="margin-bottom:1rem">
+        <h2>Недавние изменения</h2>
+        <ul class="soon-list">
+            @foreach (var log in Model.RecentChanges.Take(8))
+            {
+                <li>
+                    <span>@log.AtUtc.ToLocalTime().ToString("dd.MM HH:mm") · @log.NewcomerName</span>
+                    <strong>@log.Message</strong>
+                </li>
+            }
+        </ul>
+    </section>
+}
+
+<div class="radar-list">
+@foreach (var row in Model.Rows)
+{
+    var hasAttention = row.Attention.Count > 0;
+    <article class="radar-card @(hasAttention ? "risk-high" : "risk-low")">
+        <div class="radar-top">
+            <div>
+                <h2><a asp-page="/Newcomer/Index" asp-route-id="@row.Person.Id">@row.Person.FullName</a></h2>
+                <p class="meta">@row.Person.Location · смена @row.Person.Shift · день @row.Day · рук. @row.Person.ManagerName</p>
+            </div>
+            <div class="risk-badge">
+                <span>@(hasAttention ? "Требует внимания" : "В порядке")</span>
+                <strong>@row.ProgressPct%</strong>
+            </div>
+        </div>
+
+        <div class="radar-body" style="grid-template-columns:1fr">
+            @if (row.Attention.Count == 0)
+            {
+                <p class="tiny">Сигналов нет — обычный ритм первой недели.</p>
+            }
+            else
+            {
+                <ul class="reason-list">
+                    @foreach (var item in row.Attention)
+                    {
+                        <li>
+                            <strong>@item.Title.</strong> @item.Detail
+                            <br/><span class="tiny">Действие: @item.SuggestedAction</span>
+                        </li>
+                    }
+                </ul>
+            }
+
+            <div class="panel" style="margin-top:0.75rem;box-shadow:none">
+                <h2>Заметки наставника · @row.Person.Mentor.Name</h2>
+                @if (row.MentorMarks.Count == 0)
+                {
+                    <p class="tiny">Наставник пока ничего не отметил.</p>
+                }
+                else
+                {
+                    <ul class="reason-list">
+                        @foreach (var mark in row.MentorMarks)
+                        {
+                            <li>
+                                <strong>@(mark.NeedsAttention ? "Сигнал" : "Ок"): @mark.Label.</strong>
+                                @if (!string.IsNullOrWhiteSpace(mark.Comment))
+                                {
+                                    <text> @mark.Comment</text>
+                                }
+                                <br/><span class="tiny">@mark.CreatedAtUtc.ToLocalTime().ToString("dd.MM HH:mm")</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+
+            @if (row.OpenCase is not null)
+            {
+                <div class="panel" style="margin-top:0.75rem;box-shadow:none">
+                    <h2>Обращение · @AttentionService.CaseStatusLabel(row.OpenCase.Status)</h2>
+                    <p><strong>Причина:</strong> @row.OpenCase.Reason</p>
+                    <p><strong>Ответ новичка:</strong> @row.OpenCase.NewcomerReply</p>
+                    <p><strong>Следующее действие:</strong> @(row.OpenCase.NextAction ?? "—")</p>
+                    <p><strong>Дата проверки:</strong> @(row.OpenCase.CheckDate?.ToString("dd.MM.yyyy") ?? "—")</p>
+                    <div class="radar-actions">
+                        <a class="btn btn-primary" asp-page="/Hr/Case" asp-route-id="@row.OpenCase.Id">Вести обращение</a>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="radar-actions">
+            <a class="btn btn-primary" asp-page="/Hr/Person" asp-route-id="@row.Person.Id">Поставить задачи</a>
+            <a class="btn btn-ghost" asp-page="/Newcomer/Index" asp-route-id="@row.Person.Id">Кабинет новичка</a>
+        </div>
+    </article>
+}
+</div>

@@ -1,0 +1,57 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Старт";
+}
+
+<section class="hero">
+    <div class="hero-copy">
+        <p class="eyebrow">Склад · первая неделя · опрос дня 7</p>
+        <h1>Заметить трудность<br>пока она мелкая</h1>
+        <p class="lead">
+            Гипотеза: часть трудностей новичков можно заметить в первые недели
+            и устранить до того, как они накопятся. Причины увольнений из задания нам неизвестны —
+            поэтому не угадываем их, а даём конкретный сигнал и действие.
+        </p>
+        <div class="cta-row">
+            <a class="btn btn-primary" asp-page="/Hr/Index">Руководитель</a>
+            <a class="btn btn-ghost" asp-page="/Mentor/Index">Наставник</a>
+            <a class="btn btn-ghost" asp-page="/Demo">Новичок</a>
+        </div>
+    </div>
+    <div class="hero-panel">
+        <div class="stat-grid">
+            <article>
+                <span class="stat-label">В демо</span>
+                <strong>@Model.Total</strong>
+            </article>
+            <article class="warn">
+                <span class="stat-label">Требует внимания</span>
+                <strong>@Model.NeedsAttention</strong>
+            </article>
+            <article class="danger">
+                <span class="stat-label">Открытые обращения</span>
+                <strong>@Model.OpenCases</strong>
+            </article>
+            <article>
+                <span class="stat-label">Объём MVP</span>
+                <strong>7д</strong>
+            </article>
+        </div>
+        <p class="panel-note">
+            За 4 часа: склад, три задачи первой недели, опрос на 7-й день и путь обращения.
+            Магазины, продажи, офис и точки 14/30/60/90 — следующий этап.
+        </p>
+    </div>
+</section>
+
+<section class="split-section">
+    <article>
+        <h2>Для новичка</h2>
+        <p>Три задачи по складу, наставник со сменой и контактом, короткий опрос на 7-й день.</p>
+    </article>
+    <article>
+        <h2>Для руководителя</h2>
+        <p>Не «красная зона», а конкретная причина: задача, смена наставника, опрос или обращение — и что сделать.</p>
+    </article>
+</section>

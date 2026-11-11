@@ -1,0 +1,16 @@
+@model (string PersonId, TestNewPeople.Models.OnboardingTask Task, bool Emphasize)
+@{
+    var task = Model.Task;
+    var done = task.Status == TestNewPeople.Models.PlanTaskStatus.Done;
+}
+
+<form method="post" asp-page="/Newcomer/Index" asp-route-id="@Model.PersonId" asp-page-handler="Toggle" class="task-item @(done ? "done" : null) @(Model.Emphasize ? "emphasize" : null)">
+    <input type="hidden" name="id" value="@Model.PersonId"/>
+    <input type="hidden" name="taskId" value="@task.Id"/>
+    <button type="submit" class="check" aria-label="Отметить выполнение">@(done ? "✓" : "")</button>
+    <div>
+        <strong>@task.Title</strong>
+        <p>@task.Description</p>
+        <span class="tiny">дни @task.DayFrom–@task.DayTo</span>
+    </div>
+</form>

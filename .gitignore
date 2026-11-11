@@ -1,0 +1,18 @@
+## Build
+**/bin/
+**/obj/
+.vs/
+
+## Rider / ReSharper
+.idea/
+*.DotSettings.user
+
+## SQLite
+*.db
+*.db-shm
+*.db-wal
+
+## OS / misc
+*.user
+Thumbs.db
+Desktop.ini

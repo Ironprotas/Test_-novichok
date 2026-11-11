@@ -1,0 +1,85 @@
+@page "{id}"
+@model TestNewPeople.Pages.Mentor.PersonModel
+@using TestNewPeople.Services
+@{
+    ViewData["Title"] = "Метки наставника";
+    var person = Model.Person!;
+    var today = DateOnly.FromDateTime(DateTime.Today);
+}
+
+<section class="page-head compact">
+    <div>
+        <p class="eyebrow">Наставник · @person.Mentor.Name</p>
+        <h1>@person.FullName</h1>
+        <p class="lead tight">@person.Location · смена новичка @person.Shift · день @person.DayNumber(today)</p>
+    </div>
+    <div class="head-side">
+        <a class="btn btn-ghost" asp-page="/Mentor/Index">К списку</a>
+    </div>
+</section>
+
+<div class="two-col">
+    <section class="panel">
+        <h2>Активные метки</h2>
+        @{
+            var marks = person.MentorMarks.Where(m => m.IsActive).OrderByDescending(m => m.CreatedAtUtc).ToList();
+        }
+        @if (marks.Count == 0)
+        {
+            <p class="empty-inline">Пока меток нет.</p>
+        }
+        else
+        {
+            foreach (var mark in marks)
+            {
+                <div class="task-item">
+                    <div class="check" style="pointer-events:none">@(mark.NeedsAttention ? "!" : "✓")</div>
+                    <div class="task-body">
+                        <strong>@mark.Label</strong>
+                        @if (!string.IsNullOrWhiteSpace(mark.Comment))
+                        {
+                            <p>@mark.Comment</p>
+                        }
+                        <span class="tiny">@mark.CreatedAtUtc.ToLocalTime().ToString("dd.MM HH:mm")</span>
+                        <form method="post" asp-page="/Mentor/Person" asp-route-id="@person.Id" asp-page-handler="Clear" class="task-remove">
+                            <input type="hidden" name="markId" value="@mark.Id"/>
+                            <button type="submit" class="linkish">снять метку</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        }
+    </section>
+
+    <form method="post" asp-page="/Mentor/Person" asp-route-id="@person.Id" asp-page-handler="Add" class="panel pulse-form">
+        <h2>Поставить метку</h2>
+        <p class="tiny">Руководитель увидит метки, которым нужно внимание, в списке «Требует внимания».</p>
+        @if (!string.IsNullOrWhiteSpace(Model.Error))
+        {
+            <p class="tiny" style="color:var(--danger)">@Model.Error</p>
+        }
+        <label class="block">
+            <span>Метка</span>
+            <select name="Label">
+                @foreach (var preset in MentorMarkCatalog.Presets)
+                {
+                    if (Model.Label == preset.Label)
+                    {
+                        <option value="@preset.Label" selected>@preset.Label</option>
+                    }
+                    else
+                    {
+                        <option value="@preset.Label">@preset.Label</option>
+                    }
+                }
+            </select>
+        </label>
+        <label class="block">
+            <span>Комментарий (необязательно)</span>
+            <textarea name="Comment" rows="3" placeholder="Например: третий день не подходит с вопросами, хотя по задачам видно, что путается">@Model.Comment</textarea>
+        </label>
+        <div class="cta-row">
+            <button class="btn btn-primary" type="submit">Сохранить метку</button>
+        </div>
+    </form>
+</div>

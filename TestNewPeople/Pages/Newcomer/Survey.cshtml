@@ -1,0 +1,48 @@
+@page "{id}"
+@model TestNewPeople.Pages.Novice.SurveyModel
+@{
+    ViewData["Title"] = "Опрос 7-го дня";
+    var person = Model.Person!;
+}
+
+<section class="page-head compact">
+    <div>
+        <p class="eyebrow">Опрос адаптации · день 7 · 3 вопроса</p>
+        <h1>@person.FullName</h1>
+        <p class="lead tight">Не оценка работы. Нужно понять, чем помочь в смене.</p>
+    </div>
+</section>
+
+<form method="post" class="panel survey-form">
+    <input type="hidden" name="Id" value="@person.Id"/>
+
+    <fieldset class="survey-q">
+        <legend>1. Понятно ли, что делать в смене?</legend>
+        <div class="survey-scale">
+            <span>1</span>
+            <input type="range" min="1" max="5" name="Clarity" value="@Model.Clarity" oninput="this.nextElementSibling.textContent=this.value"/>
+            <em>@Model.Clarity</em>
+            <span>5</span>
+        </div>
+    </fieldset>
+
+    <fieldset class="survey-q">
+        <legend>2. Знаешь ли, к кому обратиться?</legend>
+        <div class="survey-scale">
+            <span>1</span>
+            <input type="range" min="1" max="5" name="Contact" value="@Model.Contact" oninput="this.nextElementSibling.textContent=this.value"/>
+            <em>@Model.Contact</em>
+            <span>5</span>
+        </div>
+    </fieldset>
+
+    <fieldset class="survey-q">
+        <legend>3. Что сейчас мешает работать самостоятельно?</legend>
+        <textarea name="Blocker" rows="4" placeholder="Например: не уверен в терминале, не пересекаюсь с наставником, непонятна зона приёмки">@Model.Blocker</textarea>
+    </fieldset>
+
+    <div class="cta-row">
+        <button class="btn btn-primary" type="submit">Отправить три ответа</button>
+        <a class="btn btn-ghost" asp-page="/Newcomer/Index" asp-route-id="@person.Id">Назад</a>
+    </div>
+</form>

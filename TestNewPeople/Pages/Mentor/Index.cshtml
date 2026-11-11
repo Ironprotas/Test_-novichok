@@ -1,0 +1,29 @@
+@page
+@model TestNewPeople.Pages.Mentor.IndexModel
+@{
+    ViewData["Title"] = "Наставник";
+    var today = DateOnly.FromDateTime(DateTime.Today);
+}
+
+<section class="page-head">
+    <div>
+        <p class="eyebrow">Кабинет наставника</p>
+        <h1>Ваши новички</h1>
+        <p class="lead tight">Можно поставить метку: например, «не обращается ко мне» — руководитель увидит сигнал.</p>
+    </div>
+</section>
+
+<div class="demo-grid">
+@foreach (var person in Model.People)
+{
+    var activeMarks = person.MentorMarks.Count(m => m.IsActive);
+    <a class="demo-card" asp-page="/Mentor/Person" asp-route-id="@person.Id">
+        <div class="demo-top">
+            <strong>@person.FullName</strong>
+            <span class="mini-risk">@(activeMarks > 0 ? $"меток: {activeMarks}" : "без меток")</span>
+        </div>
+        <p>Наставник: @person.Mentor.Name · смена @person.Shift · день @person.DayNumber(today)</p>
+        <p class="why">Открыть и поставить метку</p>
+    </a>
+}
+</div>
